@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Time : 2021/1/11 9:09
 # @Author : yx
-# @File : bert_sst2.py
+# @File : bert_ner.py
 
-from unicodedata import category
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -22,28 +21,26 @@ logging.set_verbosity_error()
 # 环境变量：设置程序能使用的GPU序号。例如：
 # 当前服务器有8张GPU可用，想用其中的第2、5、8卡，这里应该设置为:
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1,4,7"
-os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 # 通过继承nn.Module类自定义符合自己需求的模型
 class BertNERModel(nn.Module):
 
     # 初始化类
-    def __init__(self, ner_labels, pretrained_name='bert-base-chinese'):
+    def __init__(self, ner_labels, pretrained_name='bert-base-uncased'):
         """
         Args: 
             class_size  :指定分类模型的最终类别数目，以确定线性分类器的映射维度
             pretrained_name :用以指定bert的预训练模型
         """
-        # 类继承的初始化，固定写法
         super(BertNERModel, self).__init__()
         # 加载HuggingFace的BertModel
         # BertModel的最终输出维度默认为768
         # return_dict=True 可以使BertModel的输出具有dict属性，即以 bert_output['last_hidden_state'] 方式调用
         self.bert = BertModel.from_pretrained(pretrained_name,
                                               return_dict=True)
-        # 通过一个线性层将[CLS]标签对应的维度：768->class_size
-        # class_size 在SST-2情感分类任务中设置为：2
+        # 通过一个线性层将标签对应的维度：768->class_size
         self.classifier = nn.Linear(768, ner_labels)
 
     def forward(self, inputs):
@@ -53,13 +50,10 @@ class BertNERModel(nn.Module):
         # input_attn_mask :tensor类型，因为input_ids中存在大量[Pad]填充，attention mask将pad部分值置为0，让模型只关注非pad部分
         input_ids, input_tyi, input_attn_mask = inputs['input_ids'], inputs[
             'token_type_ids'], inputs['attention_mask']
-        # 将三者输入进模型，如果想知道模型内部如何运作，前面的蛆以后再来探索吧~
-        # 详情可以咨询 QiaoZhi
         output = self.bert(input_ids, input_tyi, input_attn_mask)
         # bert_output 分为两个部分：
         #   last_hidden_state:最后一个隐层的值
         #   pooler output:对应的是[CLS]的输出,用于分类任务
-        # 通过线性层将维度：768->2
         # categories_numberic：tensor类型，shape=batch_size*class_size，用于后续的CrossEntropy计算
         categories_numberic = self.classifier(output.last_hidden_state)
         batch_size, seq_len, ner_class_num = categories_numberic.shape
@@ -153,8 +147,10 @@ def split_entity(label_sequence):
             entity_pointer = (index, category)
             entity_mark.setdefault(entity_pointer, [label])
         elif label.startswith('I'):
-            if entity_pointer is None: continue
-            if entity_pointer[1] != label.split('-')[1]: continue
+            if entity_pointer is None:
+                continue
+            if entity_pointer[1] != label.split('-')[1]:
+                continue
             entity_mark[entity_pointer].append(label)
         else:
             entity_pointer = None
@@ -251,7 +247,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # uncased指该预训练模型对应的词表不区分字母的大小写
 # 详情可了解：https://huggingface.co/bert-base-uncased
 pretrained_model_name = 'bert-base-uncased'
-# 创建模型 BertSST2Model
+
 model = BertNERModel(len(categories), pretrained_model_name)
 # 固定写法，将模型加载到device上，
 # 如果是GPU上运行，此时可以观察到GPU的显存增加
@@ -261,8 +257,8 @@ tokenizer = BertTokenizerFast.from_pretrained(pretrained_model_name)
 
 # 训练过程
 # Adam是最近较为常用的优化器，详情可查看：https://www.jianshu.com/p/aebcaf8af76e
-optimizer = Adam(model.parameters(), learning_rate)  #使用Adam优化器
-CE_loss = nn.CrossEntropyLoss(ignore_index=-100)  # 使用crossentropy作为二分类任务的损失函数
+optimizer = Adam(model.parameters(), learning_rate)  # 使用Adam优化器
+CE_loss = nn.CrossEntropyLoss(ignore_index=-100)  # 使用crossentropy作为分类任务的损失函数
 
 # 记录当前训练时间，用以记录日志和存储
 timestamp = time.strftime("%m_%d_%H_%M", time.localtime())
@@ -301,34 +297,24 @@ for epoch in range(1, num_epoch + 1):
         total_loss += loss.item()
 
     #测试过程
-    # acc统计模型在测试数据上分类结果中的正确个数
-    acc = 0
     target_labels = []
     pred_labels = []
-    for batch in tqdm(test_dataloader, desc=f"Testing"):
-        inputs, targets = [x.to(device) for x in batch]
-        targets = targets.view(-1)
-        # 清除现有的梯度
-        optimizer.zero_grad()
-
-        # 模型前向传播，model(inputs)等同于model.forward(inputs)
-        bert_output = model(inputs)
-        predictions = bert_output.argmax(dim=-1)
-        target_labels += [categories[i] for i in targets.tolist() if i != -100]
-        pred_labels += [
-            categories[i] for i in predictions.tolist()[1:-1] if i != -100
-        ]
+    with torch.no_grad():
+        for batch in tqdm(test_dataloader, desc=f"Testing"):
+            inputs, targets = [x.to(device) for x in batch]
+            targets = targets.view(-1)
+            bert_output = model(inputs)
+            predictions = bert_output.argmax(dim=-1)
+            target_labels += [categories[i]
+                              for i in targets.tolist() if i != -100]
+            pred_labels += [
+                categories[i] for i in predictions.tolist()[1:-1] if i != -100
+            ]
 
     precision, recall, f1 = evaluate(real_label=target_labels,
                                      predict_label=pred_labels)
     print("precision is {}\nrecall is {}\nf1 is {}".format(
         precision, recall, f1))
-    # print("accuary: ", accuracy_score(target_labels, pred_labels))
-    # print("p: ", precision_score(target_labels, pred_labels))
-    # print("r: ", recall_score(target_labels, pred_labels))
-    # print("f1: ", f1_score(target_labels, pred_labels))
-    # print("classification report: ")
-    # print(classification_report(target_labels, pred_labels))
 
     if epoch % check_step == 0:
         # 保存模型

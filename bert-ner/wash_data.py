@@ -1,5 +1,4 @@
-from datasets import load_dataset, load_metric
-from tqdm import tqdm
+from datasets import load_dataset
 import json
 
 # 加载CoNLL-2003数据集、分词器
@@ -11,9 +10,7 @@ label_list = dataset["train"].features["ner_tags"].feature.names
 def tokenize_and_align_labels(examples):
     for id,tokens,ner_tags in zip(examples['id'],examples['tokens'],examples['ner_tags']):
         ner_labels=[label_list[ett_order] for ett_order in ner_tags]
-        dataset_dict[id]={'sents':' '.join(tokens),'ner_labels':' '.join(ner_labels)} # ,'ner_ids':str(ner_tags)
-
-# 获取标签列表，并加载预训练模型
+        dataset_dict[id]={'sents':' '.join(tokens),'ner_labels':' '.join(ner_labels)}
 
 datasets = dataset.map(tokenize_and_align_labels, batched=True, load_from_cache_file=False)
 with open('conll2003.jsonl','w',encoding='utf8') as file:
