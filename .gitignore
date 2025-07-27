@@ -129,3 +129,15 @@ dmypy.json
 .pyre/
 
 .vscode
+
+# Star trends output files
+star-trends/outputs/
+star-trends/*.png
+star-trends/*.csv
+star-trends/*.html
+star-trends/.streamlit/
+star_trends_*.png
+star_trends_*.csv
+
+# Environment variables
+star-trends/.env
