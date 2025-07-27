@@ -1,5 +1,29 @@
 # PyTorch 深度学习项目集合
 
+[![GitHub stars](https://img.shields.io/github/stars/yyxx1997/pytorch?style=social)](https://github.com/yyxx1997/pytorch/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/yyxx1997/pytorch?style=social)](https://github.com/yyxx1997/pytorch/network/members)
+[![GitHub watchers](https://img.shields.io/github/watchers/yyxx1997/pytorch?style=social)](https://github.com/yyxx1997/pytorch/watchers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/yyxx1997/pytorch)](https://github.com/yyxx1997/pytorch/commits/main)
+
+## 📊 仓库统计与趋势
+
+### ⭐ Star 趋势图表
+![Star History Chart](https://api.star-history.com/svg?repos=yyxx1997/pytorch&type=Date)
+
+### 📈 详细统计信息
+<div align="center">
+  
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=yyxx1997&repo=pytorch&show_icons=true&theme=default)
+
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=yyxx1997&layout=compact&theme=default)
+
+</div>
+
+### 🎯 贡献者统计
+![Contributors](https://contrib.rocks/image?repo=yyxx1997/pytorch)
+
+---
+
 这是一个包含多个基于 PyTorch 的深度学习项目的仓库，主要用于展示 BERT 模型在自然语言处理任务中的应用。
 
 ## 📂 项目结构
@@ -101,4 +125,33 @@ streamlit run web_dashboard.py
 
 ---
 
-⭐ 如果这个项目对您有帮助，请考虑给仓库一个 star！您也可以使用我们的 star 趋势分析工具来跟踪这个仓库的发展情况。
+## 📊 实时 Star 趋势监控
+
+### 📈 当前统计（自动更新）
+- **总 Stars**: ![GitHub Repo stars](https://img.shields.io/github/stars/yyxx1997/pytorch?style=flat-square&color=yellow)
+- **总 Forks**: ![GitHub forks](https://img.shields.io/github/forks/yyxx1997/pytorch?style=flat-square&color=blue)
+- **总 Issues**: ![GitHub issues](https://img.shields.io/github/issues/yyxx1997/pytorch?style=flat-square&color=red)
+- **仓库大小**: ![GitHub repo size](https://img.shields.io/github/repo-size/yyxx1997/pytorch?style=flat-square&color=green)
+- **代码行数**: ![Lines of code](https://img.shields.io/tokei/lines/github/yyxx1997/pytorch?style=flat-square)
+
+### 🏆 Star 历史记录
+<!-- Star 趋势图将在GitHub上自动更新 -->
+[![Stargazers over time](https://starchart.cc/yyxx1997/pytorch.svg)](https://starchart.cc/yyxx1997/pytorch)
+
+### 📅 活跃度监控
+![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=yyxx1997&repo=pytorch&theme=github)
+
+### 🌟 Star 分布分析
+![Star Distribution](https://github-readme-streak-stats.herokuapp.com/?user=yyxx1997&theme=default)
+
+---
+
+⭐ **如果这个项目对您有帮助，请考虑给仓库一个 star！** 
+
+上面的统计图表会自动更新，您可以：
+- 📊 查看实时的 star 增长趋势
+- 📈 监控项目的活跃度变化  
+- 🎯 分析贡献者和用户参与情况
+- 📱 在项目主页直接看到最新数据
+
+您也可以使用我们的 [`star-trends/`](star-trends/) 工具来进行更深入的趋势分析！
